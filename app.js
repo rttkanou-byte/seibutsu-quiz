@@ -1,4 +1,4 @@
-const KEY = "bioQuizFull_1_204_v1";
+const KEY = "bioQuizFull_1_204_v2_explanations";
 let state = { mode:"all", list:[], idx:0, answers:{}, wrong:[], history:[] };
 
 function load(){
@@ -12,7 +12,7 @@ function show(id){
   $(id).classList.remove("hidden");
 }
 function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  return String(s ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 function init(){
   state = load();
@@ -65,8 +65,13 @@ function render(){
     }
     $("choices").appendChild(b);
   });
-  $("feedback").textContent = ans === undefined ? "" : ans === q.answer ? "正解です。" : `不正解です。正解は ${q.answer + 1} です。`;
-  if(ans !== undefined && q.explanation) $("feedback").textContent += "\n解説: " + q.explanation;
+  if(ans === undefined){
+    $("feedback").innerHTML = "";
+  } else {
+    const resultClass = ans === q.answer ? "ok" : "ng";
+    const resultText = ans === q.answer ? "正解です。" : `不正解です。正解は ${q.answer + 1}. ${escapeHtml(q.choices[q.answer])} です。`;
+    $("feedback").innerHTML = `<div class="feedbackBox"><div class="${resultClass}">${resultText}</div>${q.explanation ? `<div class="explain">${escapeHtml(q.explanation).replace(/\n/g,"<br>")}</div>` : ""}</div>`;
+  }
   $("prevBtn").disabled = state.idx === 0;
   $("nextBtn").textContent = state.idx === state.list.length - 1 ? "結果へ" : "次へ";
   save();
@@ -87,7 +92,7 @@ function result(mid){
   const correct = done.filter(q => state.answers[q.id] === q.answer).length;
   $("resultTitle").textContent = mid ? "中間結果" : "結果";
   $("scoreStats").innerHTML = `<div class="stat">解答 ${done.length}問</div><div class="stat">正解 ${correct}問</div><div class="stat">正答率 ${done.length ? Math.round(correct / done.length * 100) : 0}%</div>`;
-  $("wrongList").innerHTML = done.filter(q => state.answers[q.id] !== q.answer).map(q => `<div class="wrongItem"><b>No.${q.id}</b> ${escapeHtml(q.question)}<br>正解：${q.answer + 1}. ${escapeHtml(q.choices[q.answer])}${q.explanation ? `<br>解説：${escapeHtml(q.explanation)}` : ""}</div>`).join("") || "間違えた問題はありません。";
+  $("wrongList").innerHTML = done.filter(q => state.answers[q.id] !== q.answer).map(q => `<div class="wrongItem"><b>No.${q.id}</b> ${escapeHtml(q.question)}<br>正解：${q.answer + 1}. ${escapeHtml(q.choices[q.answer])}${q.explanation ? `<br><br>${escapeHtml(q.explanation).replace(/\n/g,"<br>")}` : ""}</div>`).join("") || "間違えた問題はありません。";
   state.history = state.history || [];
   if(!mid){
     state.history.unshift({date:new Date().toLocaleString(), mode:state.mode, score:`${correct}/${done.length}`, rate:done.length ? Math.round(correct / done.length * 100) : 0});
@@ -100,7 +105,11 @@ function showHistory(){
   state = load();
   show("history");
   $("historyBody").innerHTML = (state.history || []).map(h => `<tr><td>${escapeHtml(h.date)}</td><td>${escapeHtml(h.mode)}</td><td>${escapeHtml(h.score)}</td><td>${h.rate}%</td></tr>`).join("") || "<tr><td colspan=4>記録はありません。</td></tr>";
-  $("weakList").textContent = (state.wrong || []).length ? `直近の間違い：${state.wrong.join(", ")}` : "直近の間違いはありません。";
+  const wrongIds = state.wrong || [];
+  $("weakList").innerHTML = wrongIds.length ? wrongIds.map(id => {
+    const q = QUESTIONS.find(x => x.id === id);
+    return q ? `<div class="wrongItem"><b>No.${q.id}</b> ${escapeHtml(q.question)}<br>正解：${q.answer + 1}. ${escapeHtml(q.choices[q.answer])}</div>` : "";
+  }).join("") : "直近の間違いはありません。";
 }
 function resetAll(){
   if(confirm("保存データを削除しますか？")){

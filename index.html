@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>高校生物 4択問題アプリ</title>
+  <title>高校生物 4択問題アプリ Ver.2</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main class="app">
   <section id="home" class="card hero">
     <h1>高校生物 4択問題アプリ</h1>
-    <p class="subtitle">No.1〜204を統合した問題集です。1問ずつ解答し、途中保存・続きから再開・間違えた問題だけの復習ができます。</p>
+    <p class="subtitle">No.1〜204を統合した解説付き問題集です。1問ずつ解答し、途中保存・続きから再開・間違えた問題だけの復習ができます。</p>
     <p>
       <span class="pill">全 <span id="totalCount">0</span> 問</span>
       <span class="pill">直近の間違い <span id="wrongCount">0</span> 問</span>
@@ -23,6 +23,12 @@
       <button class="btn ghost" onclick="showHistory()">学習記録</button>
       <button class="btn danger" onclick="resetAll()">保存データ削除</button>
     </div>
+    <section class="about">
+      <h2>この教材について</h2>
+      <p>No.1〜145は、生徒が授業内で作成した問題をもとに、AIと教員が内容を確認・修正して収録しています。</p>
+      <p>No.146〜204は、理解を深めるために教員が作成した補充問題です。</p>
+      <p>本教材は、生徒・AI・教員が協働して作成した学習教材です。</p>
+    </section>
     <p class="small">進捗はこのブラウザ内に保存されます。別の端末や別のブラウザには引き継がれません。</p>
   </section>
 
@@ -62,7 +68,7 @@
         <tbody id="historyBody"></tbody>
       </table>
     </div>
-    <h3>苦手問題（直近の間違い）</h3>
+    <h3>直近の間違い</h3>
     <div id="weakList"></div>
     <div class="nav"><button class="btn primary" onclick="init()">ホームへ</button></div>
   </section>
